@@ -92,6 +92,17 @@ public class HttpServerConnection extends Thread {
                 String fieldValue = m.group(2);
                 // TODO: Does not support duplicate field-names.
                 request.fields.put(fieldName, fieldValue);
+                /* If Cookie, handle specially */
+                if(fieldName.equals("Cookie")) {
+                    String[] pairs = fieldValue.split(";"); /* Split on ';' */
+                    for(String p : pairs) {
+                        p = p.trim();
+                        String[] av = p.split("=");
+                        if(av.length == 2) {    /* Good format? */
+                            request.cookies.add(new Cookie(av[0], av[1]));
+                        }
+                    }
+                }
             }
         }
         return true;
@@ -110,6 +121,22 @@ public class HttpServerConnection extends Thread {
             out.append(": ");
             out.append(field.getValue());
             out.append("\r\n");
+        }
+        /* Loop through cookie headers */
+        for(Cookie c : response.cookies) {
+            out.append("Set-Cookie: ").append(c.getName()).append("=\"").append(c.getValue()).append("\"");
+            if(c.getMaxAge() >= 0) {
+                out.append("; Max-Age=").append(Integer.toString(c.getMaxAge()));
+            }
+            if(c.getDomain() != null) {
+                out.append("; Domain=").append(c.getDomain());
+            }
+            if(c.getPath() != null) {
+                out.append("; Path=").append(c.getPath());
+            }
+            if(c.getSecure()) {
+                out.append("; Secure");
+            }
         }
         out.append("\r\n");
         out.flush();

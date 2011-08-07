@@ -2,7 +2,9 @@ package org.dynmap.web;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HttpResponse {
@@ -10,6 +12,7 @@ public class HttpResponse {
     public String version = "1.1";
     public HttpStatus status = null;
     public Map<String, String> fields = new HashMap<String, String>();
+    public List<Cookie> cookies = new ArrayList<Cookie>();
 
     private OutputStream body;
     public OutputStream getBody() throws IOException {
@@ -25,5 +28,9 @@ public class HttpResponse {
     public HttpResponse(HttpServerConnection connection, OutputStream body) {
         this.connection = connection;
         this.body = body;
+    }
+    
+    public void addCookie(Cookie c) {
+        cookies.add(c);
     }
 }
